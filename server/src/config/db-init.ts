@@ -1,13 +1,13 @@
 import { Express } from "express";
-import { sequelize } from "./sequelize";
+import { sequelizeInstance } from "./sequelize";
 
 const DBInit = (app: Express) => {
-  sequelize
+  sequelizeInstance
     .authenticate()
     .then(() => {
       // defineAssociations();
       console.log("Connected to the database and associations defined.");
-      return sequelize.sync({ alter: true });
+      return sequelizeInstance.sync({ alter: true });
     })
     .then(() => {
       app.listen(process.env.SERVER_PORT, () => {
