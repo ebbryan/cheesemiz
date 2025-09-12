@@ -36,37 +36,37 @@ class UsersService {
     return user;
   }
 
-  // static async loginUser(email: string): Promise<User> {
-  //   // Find user
-  //   const user = await User.findOne({ where: { email } });
-  //   if (!user) {
-  //     throw new Error("User not found");
-  //   }
+  async loginUser(email: string) {
+    // Find user
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-  //   // Generate new OTP
-  //   const otp = crypto.randomInt(100000, 999999).toString();
+    // Generate new OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
 
-  //   // Update user with new OTP
-  //   user.otp = otp;
-  //   const updatedOTP = await user.save();
-  //   if (updatedOTP) {
-  //     // Send OTP email
-  //     await sendEmail(
-  //       email,
-  //       "Your Login OTP for Cheesemiz",
-  //       `Your login OTP is: ${otp}`,
-  //       `<p>Your login OTP is: <strong>${otp}</strong></p>`
-  //     );
-  //   }
+    // Update user with new OTP
+    user.otp = otp;
+    const updatedOTP = await user.save();
+    if (updatedOTP) {
+      // Send OTP email
+      await sendEmail(
+        email,
+        "Your Login OTP for Cheesemiz",
+        `Your login OTP is: ${otp}`,
+        `<p>Your login OTP is: <strong>${otp}</strong></p>`
+      );
+    }
 
-  //   return user;
-  // }
+    return user;
+  }
 
-  // static async verifyOTP(email: string, otp: string): Promise<User | null> {
-  //   const user = await User.findOne({ where: { email: email, otp: otp } });
-  //   console.log("VerifyOTP: user found:", user ? user.id : null);
-  //   return user;
-  // }
+  async verifyOTP(email: string, otp: string) {
+    const user = await User.findOne({ where: { email: email, otp: otp } });
+    console.log("VerifyOTP: user found:", user ? user.id : null);
+    return user;
+  }
 }
 
 export default new UsersService();

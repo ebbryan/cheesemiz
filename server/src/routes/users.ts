@@ -4,7 +4,7 @@ import { Router } from "express";
 const router = Router();
 
 router.post("/register", usersController.registerUser);
-// router.post("/login", UsersController.login);
-// router.post("/verify-otp", UsersController.verifyOTP);
+router.post("/login", usersController.login);
+router.post("/verify-otp", usersController.verifyOTP);
 
 export default router;
