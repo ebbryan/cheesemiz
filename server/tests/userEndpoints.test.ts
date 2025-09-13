@@ -141,10 +141,28 @@ async function testVerifyOTP() {
   }
 }
 
+async function testSecondLogin() {
+  try {
+    console.log("Testing second /login endpoint...");
+
+    // Valid request after verify
+    let response = await fetch(`${baseURL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "testuser@example.com" }),
+    });
+    let data = await response.json();
+    console.log("Second login response:", data);
+  } catch (error: any) {
+    console.log("Error in second login:", error.message);
+  }
+}
+
 async function runTests() {
   await testRegister();
   await testLogin();
   await testVerifyOTP();
+  await testSecondLogin();
 }
 
 runTests();
