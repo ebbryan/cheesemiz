@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "baseUrl": "./src",
     "paths": {
+      "@routes/*": ["routes/*"],
       "@config/*": ["config/*"],
       "@modules/*": ["modules/*"],
       "@utils/*": ["utils/*"],

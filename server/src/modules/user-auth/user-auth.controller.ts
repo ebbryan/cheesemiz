@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import usersService from "./users.service";
+import userAuthService from "./user-auth.service";
 
-class UsersController {
+class UserAuthController {
   async registerUser(req: Request, res: Response) {
     try {
       const { email } = req.body;
       if (!email || email.trim === "") {
         return res.status(400).json({ message: "Email is required" });
       }
-      await usersService.registerUser(email);
+      await userAuthService.registerUser(email);
       return res
         .status(201)
         .json({ message: "User registered, OTP sent", success: true });
@@ -26,10 +26,10 @@ class UsersController {
       if (!email) {
         return res.status(400).json({ message: "Email is required" });
       }
-      const user = await usersService.loginUser(email);
+      const user = await userAuthService.loginUser(email);
       return res
         .status(200)
-        .json({ message: "OTP sent for login", success: true });
+        .json({ message: "OTP sent for login", data: user, success: true });
     } catch (error: any) {
       return res.status(400).json({ message: error.message, success: false });
     }
@@ -42,20 +42,24 @@ class UsersController {
       if (!email || !otp) {
         return res.status(400).json({ message: "Email and OTP are required" });
       }
-      const user = await usersService.verifyOTP(email, otp);
-      if (user) {
-        user.otp = "";
-        await user.save();
-        return res
-          .status(200)
-          .json({ message: "OTP verified successfully", userId: user.id });
+      const response = await userAuthService.verifyOTP(email, otp);
+
+      if (response && response.user) {
+        // Remove optional chaining since we've already checked response.user exists
+        response.user.otp = `${response.user.otp}-used`;
+        await response.user.save();
+        return res.status(200).json({
+          message: "OTP verified successfully",
+          data: response,
+          success: true,
+        });
       } else {
-        return res.status(401).json({ message: "Invalid OTP" });
+        return res.status(401).json({ message: "Invalid OTP", success: false });
       }
     } catch (error: any) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({ message: error.message, success: false });
     }
   }
 }
 
-export default new UsersController();
+export default new UserAuthController();

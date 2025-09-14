@@ -8,7 +8,7 @@ export const sendEmail = async (
 ) => {
   try {
     const info = await transporter.sendMail({
-      from: '"Cheesemiz" earlbryanburaay@gmail.com"',
+      from: process.env.EMAIL_FROM as string,
       to,
       subject,
       text,

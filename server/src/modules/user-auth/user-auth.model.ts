@@ -4,25 +4,27 @@ import {
   InferCreationAttributes,
   CreationOptional,
   Model,
+  UUIDV4,
 } from "sequelize";
 
 import { sequelizeInstance } from "../../config/sequelize";
 
-export class User extends Model<
-  InferAttributes<User>,
-  InferCreationAttributes<User>
+export class UserAuth extends Model<
+  InferAttributes<UserAuth>,
+  InferCreationAttributes<UserAuth>
 > {
-  declare id: string;
+  declare id: CreationOptional<string>;
   declare email: string;
   declare otp: string;
   declare readonly createdAt: Date;
   declare readonly updatedAt: CreationOptional<Date>;
 }
 
-User.init(
+UserAuth.init(
   {
     id: {
       type: DataTypes.STRING,
+      defaultValue: UUIDV4,
       primaryKey: true,
     },
     email: {
