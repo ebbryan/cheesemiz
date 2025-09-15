@@ -31,11 +31,14 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/spinner";
 import { userRegistration } from "./actions";
+import { useState } from "react";
 
 export default function Home() {
+  const [email, setEmail] = useState("");
   const emailModal = useModalActions();
+  const otpModal = useModalActions();
 
-  const form = useForm<
+  const emailForm = useForm<
     Omit<AuthType, "id" | "otp" | "createdAt" | "updatedAt">
   >({
     resolver: zodResolver(authSchema),
@@ -44,15 +47,17 @@ export default function Home() {
     },
   });
 
-  const onSubmit = async (
+  const onEmailSubmit = async (
     payload: Omit<AuthType, "id" | "otp" | "createdAt" | "updatedAt">
   ) => {
     const response = await userRegistration(payload);
     if (!response.success) {
       return alert(response.message);
     }
-    form.reset();
+    emailForm.reset();
     emailModal.onCloseModal();
+    setEmail(payload.email);
+    otpModal.onOpenModal();
   };
 
   return (
@@ -63,10 +68,10 @@ export default function Home() {
           <Button variant="default">Get Started</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
-          <Form {...form}>
+          <Form {...emailForm}>
             <form
               className="flex flex-col items-start justify-start gap-5"
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={emailForm.handleSubmit(onEmailSubmit)}
             >
               <DialogHeader>
                 <DialogTitle>Ready to begin?</DialogTitle>
@@ -76,7 +81,7 @@ export default function Home() {
               </DialogHeader>
 
               <FormField
-                control={form.control}
+                control={emailForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem className="w-full flex-1">
@@ -98,7 +103,7 @@ export default function Home() {
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
                 <Button type="submit" className="w-full sm:w-auto">
-                  {form.formState.isSubmitting ? (
+                  {emailForm.formState.isSubmitting ? (
                     <>
                       <Spinner /> <span className="sr-only">Loading...</span>
                       Loading
@@ -112,32 +117,38 @@ export default function Home() {
           </Form>
         </DialogContent>
       </Dialog>
-      {/* <Dialog>
+      <Dialog open={otpModal.isOpen} onOpenChange={otpModal.onToggleModal}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Enter OTP</DialogTitle>
             <DialogDescription>
-              We send an OTP code to `EMAIL`, please check your email.
+              We send an OTP code to <strong>{email}</strong>, please check your
+              email.
             </DialogDescription>
           </DialogHeader>
-          <InputOTP maxLength={6}>
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
+          <div className="w-full flex items-center justify-center">
+            <InputOTP maxLength={6}>
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save changes</Button>
+            <div className="flex flex-col-reverse items-center justify-center w-full">
+              <DialogClose asChild>
+                <Button variant="link">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Submit</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
-      </Dialog> */}
+      </Dialog>
     </section>
   );
 }
