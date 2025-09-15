@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/input-otp";
 import useModalActions from "@/hooks/useModalActions";
 import { authSchema, AuthType } from "@/zod-types/auth.zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -31,7 +30,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/spinner";
-import { register } from "./actions";
+import { userRegistration } from "./actions";
 
 export default function Home() {
   const emailModal = useModalActions();
@@ -48,12 +47,12 @@ export default function Home() {
   const onSubmit = async (
     payload: Omit<AuthType, "id" | "otp" | "createdAt" | "updatedAt">
   ) => {
-    await register(payload);
-
+    const response = await userRegistration(payload);
+    if (!response.success) {
+      return alert(response.message);
+    }
     form.reset();
     emailModal.onCloseModal();
-
-    return alert("EMAIL SENT!");
   };
 
   return (

@@ -1,15 +1,17 @@
 "use server";
 
 import { endpoint } from "@/utils/axios";
-import { AuthType } from "@/zod-types/auth.zod";
+import { AuthRegistrationResponse, AuthType } from "@/zod-types/auth.zod";
 import { AxiosError } from "axios";
 
-export const register = async (
+export const userRegistration = async (
   payload: Omit<AuthType, "id" | "otp" | "createdAt" | "updatedAt">
 ) => {
   try {
-    const response = await endpoint.post("/user-auth/register", payload);
-    return response.data;
+    const response = (await endpoint.post("/user-auth/register", payload))
+      .data as AuthRegistrationResponse;
+
+    return response;
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
       return {
