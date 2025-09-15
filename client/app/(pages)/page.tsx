@@ -77,8 +77,8 @@ export default function Home() {
       otp: payload.otp,
     };
     const response = await otpVerification(finalPayload);
-    if (!response.success) {
-      return alert(response.message);
+    if (!response?.success) {
+      return alert(response?.message);
     }
     // display toast here
     otpForm.reset();

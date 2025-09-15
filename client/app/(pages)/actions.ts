@@ -7,6 +7,7 @@ import {
   TVerifyOTPResponse,
 } from "@/zod-types/auth.zod";
 import { AxiosError } from "axios";
+import { cookies } from "next/headers";
 
 export const userRegistration = async (
   payload: Omit<TAuth, "id" | "otp" | "createdAt" | "updatedAt">
@@ -31,8 +32,12 @@ export const otpVerification = async (
   payload: Omit<TAuth, "id" | "createdAt" | "updatedAt">
 ) => {
   try {
-    const response = (await endpoint.post("/user-auth/verify-otp", payload))
-      .data as TVerifyOTPResponse;
+    const cookieStore = await cookies();
+    const response = (await endpoint
+      .post("/user-auth/verify-otp", payload)
+      .then((res) => {
+        cookieStore.set("token", res.data.data.token);
+      })) as TAuthRegistrationResponse;
 
     return response;
   } catch (error: unknown) {
