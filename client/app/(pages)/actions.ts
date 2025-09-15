@@ -28,6 +28,23 @@ export const userRegistration = async (
   }
 };
 
+export const userLogin = async (
+  payload: Omit<TAuth, "id" | "otp" | "createdAt" | "updatedAt">
+) => {
+  try {
+    const response = (await endpoint.post("/user-auth/login", payload)).data;
+    return response;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data.message,
+      };
+    }
+    throw error;
+  }
+};
+
 export const otpVerification = async (
   payload: Omit<TAuth, "id" | "createdAt" | "updatedAt">
 ) => {

@@ -1,0 +1,223 @@
+"use client";
+
+import { otpVerification, userLogin } from "@/app/(pages)/actions";
+import Spinner from "@/components/spinner";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import useModalActions from "@/hooks/useModalActions";
+import { authSchema, TAuth } from "@/zod-types/auth.zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
+
+const Navigation = ({ children }: { children: ReactNode }) => {
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const loginModal = useModalActions();
+  const otpModal = useModalActions();
+
+  const loginForm = useForm<
+    Omit<TAuth, "id" | "otp" | "createdAt" | "updatedAt">
+  >({
+    resolver: zodResolver(authSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const onLoginSubmit = async (
+    payload: Omit<TAuth, "id" | "otp" | "createdAt" | "updatedAt">
+  ) => {
+    const response = await userLogin(payload);
+    if (!response.success) {
+      return alert(response.message);
+    }
+
+    // display toast here
+    loginForm.reset();
+    loginModal.onCloseModal();
+    setEmail(payload && payload?.email ? payload?.email : "");
+    otpModal.onOpenModal();
+  };
+
+  const otpForm = useForm<
+    Omit<TAuth, "id" | "email" | "createdAt" | "updatedAt">
+  >({
+    resolver: zodResolver(authSchema),
+    defaultValues: {
+      otp: "",
+    },
+  });
+
+  const onOTPSubmit = async (
+    payload: Omit<TAuth, "id" | "email" | "createdAt" | "updatedAt">
+  ) => {
+    const finalPayload = {
+      email: email,
+      otp: payload.otp,
+    };
+    const response = await otpVerification(finalPayload);
+    if (!response?.success) {
+      return alert(response?.message);
+    }
+    // display toast here
+    otpForm.reset();
+    otpModal.onCloseModal();
+  };
+  return (
+    <>
+      <nav className="flex items-center justify-between fixed w-full p-3 px-6">
+        <div>`HIDDEN`</div>
+        <div>
+          <Dialog
+            open={loginModal.isOpen}
+            onOpenChange={loginModal.onToggleModal}
+          >
+            <DialogTrigger asChild>
+              <Button variant="secondary">Login</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Welcome back!</DialogTitle>
+                <DialogDescription>
+                  Enter your email to receive your instant OTP.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...loginForm}>
+                <form
+                  className="flex flex-col items-start justify-start gap-5"
+                  onSubmit={loginForm.handleSubmit(onLoginSubmit)}
+                >
+                  <FormField
+                    control={loginForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="w-full flex-1">
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="w-full"
+                            placeholder="Enter your email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter className="flex items-end justify-end w-full">
+                    <DialogClose asChild>
+                      <Button variant="secondary" className="w-full sm:w-auto">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit" className="w-full sm:w-auto">
+                      {loginForm.formState.isSubmitting ? (
+                        <>
+                          <Spinner />
+                          <span className="sr-only">Loading...</span>
+                          Loading
+                        </>
+                      ) : (
+                        "Login"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={otpModal.isOpen} onOpenChange={otpModal.onToggleModal}>
+            <DialogContent className="sm:max-w-[425px]">
+              <Form {...otpForm}>
+                <form
+                  onSubmit={otpForm.handleSubmit(onOTPSubmit)}
+                  className="space-y-6"
+                >
+                  <DialogHeader>
+                    <DialogTitle>Enter OTP</DialogTitle>
+                    <DialogDescription>
+                      We sent an OTP code to <strong>{email}</strong>, please
+                      check your email.
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <FormField
+                    control={otpForm.control}
+                    name="otp"
+                    render={({ field }) => (
+                      <FormItem className="w-full flex justify-center">
+                        <FormControl>
+                          <InputOTP maxLength={6} {...field}>
+                            <InputOTPGroup>
+                              <InputOTPSlot index={0} />
+                              <InputOTPSlot index={1} />
+                              <InputOTPSlot index={2} />
+                              <InputOTPSlot index={3} />
+                              <InputOTPSlot index={4} />
+                              <InputOTPSlot index={5} />
+                            </InputOTPGroup>
+                          </InputOTP>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter className="flex flex-col-reverse items-center justify-center w-full gap-3">
+                    <DialogClose asChild>
+                      <Button
+                        variant="secondary"
+                        type="button"
+                        className="w-full sm:w-auto"
+                      >
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit" className="w-full sm:w-auto">
+                      {otpForm.formState.isSubmitting ? (
+                        <>
+                          <Spinner />{" "}
+                          <span className="sr-only">Loading...</span>
+                          Verifying
+                        </>
+                      ) : (
+                        "Submit"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </nav>
+      {children}
+    </>
+  );
+};
+
+export default Navigation;

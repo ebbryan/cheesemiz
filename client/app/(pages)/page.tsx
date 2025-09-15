@@ -93,18 +93,17 @@ export default function Home() {
           <Button variant="default">Get Started</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Ready to begin?</DialogTitle>
+            <DialogDescription>
+              Enter your email to receive your instant OTP.
+            </DialogDescription>
+          </DialogHeader>
           <Form {...emailForm}>
             <form
               className="flex flex-col items-start justify-start gap-5"
               onSubmit={emailForm.handleSubmit(onEmailSubmit)}
             >
-              <DialogHeader>
-                <DialogTitle>Ready to begin?</DialogTitle>
-                <DialogDescription>
-                  Enter your email to receive your instant OTP.
-                </DialogDescription>
-              </DialogHeader>
-
               <FormField
                 control={emailForm.control}
                 name="email"
@@ -125,7 +124,9 @@ export default function Home() {
 
               <DialogFooter className="flex items-end justify-end w-full">
                 <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
+                  <Button variant="secondary" className="w-full sm:w-auto">
+                    Cancel
+                  </Button>
                 </DialogClose>
                 <Button type="submit" className="w-full sm:w-auto">
                   {emailForm.formState.isSubmitting ? (
@@ -181,7 +182,11 @@ export default function Home() {
 
               <DialogFooter className="flex flex-col-reverse items-center justify-center w-full gap-3">
                 <DialogClose asChild>
-                  <Button variant="link" type="button">
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    className="w-full sm:w-auto"
+                  >
                     Cancel
                   </Button>
                 </DialogClose>
