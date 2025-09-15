@@ -14,8 +14,17 @@ export const authSchema = z.object({
   updatedAt: z.string().optional(),
 });
 
-export type AuthType = z.infer<typeof authSchema>;
-export type AuthRegistrationResponse = {
+export type TAuth = z.infer<typeof authSchema>;
+export type TAuthRegistrationResponse = {
   message: string;
   success: boolean;
+};
+
+export type TVerifyOTPResponse = {
+  message: string;
+  success: boolean;
+  data: {
+    user: TAuth;
+    token: string;
+  };
 };

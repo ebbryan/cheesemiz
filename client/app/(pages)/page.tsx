@@ -17,7 +17,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import useModalActions from "@/hooks/useModalActions";
-import { authSchema, AuthType } from "@/zod-types/auth.zod";
+import { authSchema, TAuth } from "@/zod-types/auth.zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -39,7 +39,7 @@ export default function Home() {
   const otpModal = useModalActions();
 
   const emailForm = useForm<
-    Omit<AuthType, "id" | "otp" | "createdAt" | "updatedAt">
+    Omit<TAuth, "id" | "otp" | "createdAt" | "updatedAt">
   >({
     resolver: zodResolver(authSchema),
     defaultValues: {
@@ -48,7 +48,7 @@ export default function Home() {
   });
 
   const onEmailSubmit = async (
-    payload: Omit<AuthType, "id" | "otp" | "createdAt" | "updatedAt">
+    payload: Omit<TAuth, "id" | "otp" | "createdAt" | "updatedAt">
   ) => {
     const response = await userRegistration(payload);
     if (!response.success) {
@@ -61,7 +61,7 @@ export default function Home() {
   };
 
   const otpForm = useForm<
-    Omit<AuthType, "id" | "email" | "createdAt" | "updatedAt">
+    Omit<TAuth, "id" | "email" | "createdAt" | "updatedAt">
   >({
     resolver: zodResolver(authSchema),
     defaultValues: {
@@ -70,16 +70,17 @@ export default function Home() {
   });
 
   const onOTPSubmit = async (
-    payload: Omit<AuthType, "id" | "email" | "createdAt" | "updatedAt">
+    payload: Omit<TAuth, "id" | "email" | "createdAt" | "updatedAt">
   ) => {
-    console.log("Submitted OTP:", payload.otp);
-    // Call your verify OTP API here
     const finalPayload = {
       email: email,
       otp: payload.otp,
     };
     const response = await otpVerification(finalPayload);
-    console.log(`response from client side`, response);
+    if (!response.success) {
+      return alert(response.message);
+    }
+    // display toast here
     otpForm.reset();
     otpModal.onCloseModal();
   };
