@@ -30,11 +30,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/spinner";
-import { userRegistration } from "./actions";
+import { otpVerification, userRegistration } from "./actions";
 import { useState } from "react";
 
 export default function Home() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState<string | undefined>(undefined);
   const emailModal = useModalActions();
   const otpModal = useModalActions();
 
@@ -56,8 +56,32 @@ export default function Home() {
     }
     emailForm.reset();
     emailModal.onCloseModal();
-    setEmail(payload.email);
+    setEmail(payload && payload?.email ? payload?.email : undefined);
     otpModal.onOpenModal();
+  };
+
+  const otpForm = useForm<
+    Omit<AuthType, "id" | "email" | "createdAt" | "updatedAt">
+  >({
+    resolver: zodResolver(authSchema),
+    defaultValues: {
+      otp: "",
+    },
+  });
+
+  const onOTPSubmit = async (
+    payload: Omit<AuthType, "id" | "email" | "createdAt" | "updatedAt">
+  ) => {
+    console.log("Submitted OTP:", payload.otp);
+    // Call your verify OTP API here
+    const finalPayload = {
+      email: email,
+      otp: payload.otp,
+    };
+    const response = await otpVerification(finalPayload);
+    console.log(`response from client side`, response);
+    otpForm.reset();
+    otpModal.onCloseModal();
   };
 
   return (
@@ -119,34 +143,60 @@ export default function Home() {
       </Dialog>
       <Dialog open={otpModal.isOpen} onOpenChange={otpModal.onToggleModal}>
         <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Enter OTP</DialogTitle>
-            <DialogDescription>
-              We send an OTP code to <strong>{email}</strong>, please check your
-              email.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="w-full flex items-center justify-center">
-            <InputOTP maxLength={6}>
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-          </div>
+          <Form {...otpForm}>
+            <form
+              onSubmit={otpForm.handleSubmit(onOTPSubmit)}
+              className="space-y-6"
+            >
+              <DialogHeader>
+                <DialogTitle>Enter OTP</DialogTitle>
+                <DialogDescription>
+                  We sent an OTP code to <strong>{email}</strong>, please check
+                  your email.
+                </DialogDescription>
+              </DialogHeader>
 
-          <DialogFooter>
-            <div className="flex flex-col-reverse items-center justify-center w-full">
-              <DialogClose asChild>
-                <Button variant="link">Cancel</Button>
-              </DialogClose>
-              <Button type="submit">Submit</Button>
-            </div>
-          </DialogFooter>
+              <FormField
+                control={otpForm.control}
+                name="otp"
+                render={({ field }) => (
+                  <FormItem className="w-full flex justify-center">
+                    <FormControl>
+                      <InputOTP maxLength={6} {...field}>
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter className="flex flex-col-reverse items-center justify-center w-full gap-3">
+                <DialogClose asChild>
+                  <Button variant="link" type="button">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button type="submit" className="w-full sm:w-auto">
+                  {otpForm.formState.isSubmitting ? (
+                    <>
+                      <Spinner /> <span className="sr-only">Loading...</span>
+                      Verifying
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </section>

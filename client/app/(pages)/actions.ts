@@ -22,3 +22,22 @@ export const userRegistration = async (
     throw error;
   }
 };
+
+export const otpVerification = async (
+  payload: Omit<AuthType, "id" | "createdAt" | "updatedAt">
+) => {
+  try {
+    const response = (await endpoint.post("/user-auth/verify-otp", payload))
+      .data;
+    console.log(`Response!`, response);
+    return response;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data.message,
+      };
+    }
+    throw error;
+  }
+};
