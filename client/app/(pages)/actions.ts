@@ -4,6 +4,7 @@ import { endpoint } from "@/utils/axios";
 import {
   TAuth,
   TAuthRegistrationResponse,
+  TLoginResponse,
   TVerifyOTPResponse,
 } from "@/zod-types/auth.zod";
 import { AxiosError } from "axios";
@@ -32,7 +33,8 @@ export const userLogin = async (
   payload: Omit<TAuth, "id" | "otp" | "createdAt" | "updatedAt">
 ) => {
   try {
-    const response = (await endpoint.post("/user-auth/login", payload)).data;
+    const response = (await endpoint.post("/user-auth/login", payload))
+      .data as TLoginResponse;
     return response;
   } catch (error: unknown) {
     if (error instanceof AxiosError) {

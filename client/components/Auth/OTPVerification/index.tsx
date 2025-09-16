@@ -27,37 +27,38 @@ import {
 } from "@/components/ui/form";
 import Spinner from "@/components/spinner";
 import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { otpVerification } from "@/app/(pages)/actions";
+import { useRouter } from "next/navigation";
 
 type ComponentProps = {
   modalAction: IUseModalActions;
   emailState?: string;
 };
 
+type OmittedAuthType = Omit<TAuth, "id" | "email" | "createdAt" | "updatedAt">;
+
 const OTPVerification = (props: ComponentProps) => {
-  const otpForm = useForm<
-    Omit<TAuth, "id" | "email" | "createdAt" | "updatedAt">
-  >({
+  const router = useRouter();
+  const otpForm = useForm<OmittedAuthType>({
     resolver: zodResolver(authSchema),
     defaultValues: {
       otp: "",
     },
   });
 
-  const onOTPSubmit = async (
-    payload: Omit<TAuth, "id" | "email" | "createdAt" | "updatedAt">
-  ) => {
+  const onOTPSubmit = async (payload: OmittedAuthType) => {
     const finalPayload = {
       email: props.emailState,
       otp: payload.otp,
     };
     const response = await otpVerification(finalPayload);
-    if (!response?.success) {
+    if (response && !response.success) {
       return toast(response.message);
     }
     otpForm.reset();
     props.modalAction.onCloseModal();
+    router.refresh();
   };
 
   return (

@@ -28,3 +28,15 @@ export type TVerifyOTPResponse = {
     token: string;
   };
 };
+
+export type TLoginResponse = {
+  message: string;
+  data: {
+    id: string;
+    email: string;
+    otp: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  success: boolean;
+};

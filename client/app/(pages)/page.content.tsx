@@ -1,6 +1,6 @@
 "use client";
-import EmailRegistration from "@/components/EmailRegistration";
-import OTPVerification from "@/components/OTPVerification";
+import EmailRegistration from "@/components/Auth/EmailRegistration";
+import OTPVerification from "@/components/Auth/OTPVerification";
 import useModalActions from "@/hooks/useModalActions";
 import { useState } from "react";
 
