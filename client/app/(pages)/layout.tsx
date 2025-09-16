@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, B612, Inter } from "next/font/google";
+import { B612, Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/(shared)/Navigation";
 import { Toaster } from "@/components/ui/sonner";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { UserProvider } from "@/context/user.context";
+import { cookies } from "next/headers";
+import { jwtDecode } from "jwt-decode";
+import ProgressBar from "@/components/ProgressBar";
 
 const b612 = B612({
   variable: "--font-b612",
@@ -31,18 +25,34 @@ export const metadata: Metadata = {
   description: "Open Source ChatApp",
 };
 
-export default function RootLayout({
+type UserDataTypeFromJWT = Omit<JwtPayload, "exp" | "iat">;
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  let user: UserDataTypeFromJWT | null = null;
+
+  if (token) {
+    try {
+      user = jwtDecode(token) as UserDataTypeFromJWT;
+    } catch (error) {
+      console.error("Invalid token:", error);
+    }
+  }
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${b612.variable} ${inter.variable} antialiased`}
-      >
-        <Navigation>{children}</Navigation>
-        <Toaster />
+      <body className={`${b612.variable} ${inter.variable} antialiased`}>
+        <UserProvider>
+          <ProgressBar>
+            <Navigation me={user?.data}>{children}</Navigation>
+            <Toaster />
+          </ProgressBar>
+        </UserProvider>
       </body>
     </html>
   );

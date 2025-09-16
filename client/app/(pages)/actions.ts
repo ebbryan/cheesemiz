@@ -47,6 +47,21 @@ export const userLogin = async (
   }
 };
 
+export const userLogout = async () => {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("token");
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        success: false,
+        message: error.response?.data.message,
+      };
+    }
+    throw error;
+  }
+};
+
 export const otpVerification = async (
   payload: Omit<TAuth, "id" | "createdAt" | "updatedAt">
 ) => {

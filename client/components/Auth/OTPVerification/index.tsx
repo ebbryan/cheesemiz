@@ -29,7 +29,7 @@ import Spinner from "@/components/spinner";
 import { toast } from "sonner";
 import { Button } from "../../ui/button";
 import { otpVerification } from "@/app/(pages)/actions";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@bprogress/next/app";
 
 type ComponentProps = {
   modalAction: IUseModalActions;
