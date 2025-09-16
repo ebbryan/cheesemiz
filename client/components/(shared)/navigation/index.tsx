@@ -32,6 +32,8 @@ import { authSchema, TAuth } from "@/zod-types/auth.zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import ToastComponent from "../CustomToast";
 
 const Navigation = ({ children }: { children: ReactNode }) => {
   const [email, setEmail] = useState<string | undefined>(undefined);
@@ -52,10 +54,9 @@ const Navigation = ({ children }: { children: ReactNode }) => {
   ) => {
     const response = await userLogin(payload);
     if (!response.success) {
-      return alert(response.message);
+      return ToastComponent(response.message).ErrorToast();
     }
 
-    // display toast here
     loginForm.reset();
     loginModal.onCloseModal();
     setEmail(payload && payload?.email ? payload?.email : "");
@@ -80,9 +81,9 @@ const Navigation = ({ children }: { children: ReactNode }) => {
     };
     const response = await otpVerification(finalPayload);
     if (!response?.success) {
-      return alert(response?.message);
+      return ToastComponent(response.message).ErrorToast();
     }
-    // display toast here
+
     otpForm.reset();
     otpModal.onCloseModal();
   };
@@ -96,7 +97,7 @@ const Navigation = ({ children }: { children: ReactNode }) => {
             onOpenChange={loginModal.onToggleModal}
           >
             <DialogTrigger asChild>
-              <Button variant="secondary">Login</Button>
+              <Button variant="outline">Login</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>

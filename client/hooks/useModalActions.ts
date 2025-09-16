@@ -1,10 +1,17 @@
 "use client";
 import { useState } from "react";
 
-const useModalActions = () => {
-  const [isOpen, setIsOpen] = useState(false);
+export interface IUseModalActions {
+  isOpen: boolean;
+  onToggleModal: () => void;
+  onOpenModal: () => void;
+  onCloseModal: () => void;
+}
 
-  const onToggleModal = () => setIsOpen(!isOpen);
+const useModalActions = (): IUseModalActions => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const onToggleModal = () => setIsOpen((prev) => !prev);
   const onOpenModal = () => setIsOpen(true);
   const onCloseModal = () => setIsOpen(false);
 

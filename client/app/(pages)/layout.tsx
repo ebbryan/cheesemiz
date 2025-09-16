@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, B612, Inter } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/(shared)/navigation";
+import Navigation from "@/components/(shared)/Navigation";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${b612.variable} ${inter.variable} antialiased`}
       >
         <Navigation>{children}</Navigation>
+        <Toaster />
       </body>
     </html>
   );

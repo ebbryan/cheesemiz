@@ -54,7 +54,7 @@ export const otpVerification = async (
       .post("/user-auth/verify-otp", payload)
       .then((res) => {
         cookieStore.set("token", res.data.data.token);
-      })) as TAuthRegistrationResponse;
+      })) as TVerifyOTPResponse;
 
     return response;
   } catch (error: unknown) {
